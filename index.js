@@ -1,27 +1,29 @@
+const fetch = require('node-fetch');
+
 exports.handler = async function http(req) {
 
-  let html = `
-<!doctype html>
-<html lang=en>
-  <head>
-    <meta charset=utf-8>
-    <title>Hi!</title>
-    <link rel="stylesheet" href="https://static.begin.app/starter/default.css">
-    <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" rel="icon" type="image/x-icon">
-  </head>
-  <body>
+  let url = `https://api.amc.husqvarna.dev/v1/mowers/${process.env.MOWER_ID}`
 
-    <h1 class="center-text">
-      <!-- ↓ Change "Hello world!" to something else and head on back to Begin! -->
-      Hello world!
-    </h1>
+  let options = {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${process.env.AUTH_BEARER_TOKEN}`,
+      'X-Api-Key': `${process.env.API_KEY}`,
+      'Authorization-Provider': 'husqvarna'
+    }
+  }
 
-    <p class="center-text">
-      Your <a href="https://begin.com" class="link" target="_blank">Begin</a> app is ready to go!
-    </p>
+  let data
 
-  </body>
-</html>`
+  await fetch(url, options)
+    .then(res => res.json())
+    .then(json => response(json))
+    .catch(err => console.error('error:' + err));
+
+  async function response(json) {
+    console.log(json.data)
+    data = json.data
+  }
 
   return {
     headers: {
@@ -29,29 +31,6 @@ exports.handler = async function http(req) {
       'cache-control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0'
     },
     statusCode: 200,
-    body: html
+    body: JSON.stringify(data)
   }
 }
-
-// Other example responses
-
-/* Forward requester to a new path
-exports.handler = async function http (req) {
-  return {
-    statusCode: 302,
-    headers: {'location': '/about'}
-  }
-}
-*/
-
-/* Respond with successful resource creation, CORS enabled
-let arc = require('@architect/functions')
-exports.handler = arc.http.async (http)
-async function http (req) {
-  return {
-    statusCode: 201,
-    json: { ok: true },
-    cors: true,
-  }
-}
-*/

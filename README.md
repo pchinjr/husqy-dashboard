@@ -1,2 +1,0 @@
-# husqy-dashboard
-Begin app
